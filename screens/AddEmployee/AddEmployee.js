@@ -47,6 +47,7 @@ const AddEmployee = ({ navigation }) => {
     setHideLabel(false);
   };
 
+  // # i love Eithan!
   return (
     <KeyboardAvoidingWarper>
       <GlobalContainer topPart={true}>
