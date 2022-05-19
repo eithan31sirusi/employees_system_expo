@@ -43,6 +43,7 @@ const MangingEmployees = ({ navigation }) => {
         </PageContainer>
       </GlobalContainer>
     </>
+    
   );
 };
 

@@ -3,6 +3,8 @@ import { View, TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Formik } from "formik";
 
+import { login, registerUser } from "../../services/userService";
+
 // icons
 
 import { Octicons, Ionicons } from "@expo/vector-icons";
@@ -27,7 +29,7 @@ import {
   StyledTextInput,
   RightIcon,
   StyledInputLabel,
-} from "../SignIn/SignIn.styels";
+} from "./SignUp.styles";
 
 // button styles
 
@@ -48,56 +50,11 @@ import { SignUpTitleBG } from "./SignUp.styles";
 
 import KeyboardAvoidingWarper from "../../common/KeyboardAvoiding/KeyboardAvoidingWarper";
 
-/* 
-create a user
-
-
-firstName: {
-       type: String,
-       required: true
-   },
-   lastName: {
-       type: String,
-       required: true
-   },
-   email: {
-       type: String,
-       required: true,
-       unique: true
-   },
-   userImage: {
-        type: String,
-        required: true
-   },
-   image: {
-    type: String,
-    required: false
-  },
-   password: {
-       type: String,
-       required: true
-   },
-   isAdmin: {
-       type: Boolean,
-       required: true,
-       default: false
-   },
-   isEditor: {
-       type: Boolean,
-       required: true,
-       default: false
-   }
-},
-{
-    timestamps: true
-}) */
-
 const SignUp = ({ navigation }) => {
   const [hidePassword, setHidePassword] = useState(true);
   const [show, setShow] = useState(false);
-  const [date, setDate] = useState(new Date(200, 0, 1));
+  const [userDate, setUserDate] = useState({});
   // actual date of birth to be sent to the server
-  const [dob, setDob] = useState();
 
   // hiding the label
 
@@ -110,6 +67,8 @@ const SignUp = ({ navigation }) => {
   const onfocus = () => {
     setHideLabel(false);
   };
+
+  login();
 
   return (
     <KeyboardAvoidingWarper>
@@ -126,18 +85,17 @@ const SignUp = ({ navigation }) => {
           <SubTitle>Personal Details</SubTitle>
           <Formik
             initialValues={{
-              firstName: "",
-              lastName: "",
-              email: "",
-              password: "",
-              confirmPassword: "",
+              // an object structure the API expects
+              user: {
+                firstName: "",
+                lastName: "",
+                email: "",
+                password: "",
+              },
             }}
-            onSubmit={(values) => {
+            onSubmit={(values = values.user) => {
               console.log(values);
-              setTimeout(() => {
-                navigation.navigate("SignIn");
-              }, 2000);
-              navigation.navigate("Welcome");
+              registerUser(values);
             }}
           >
             {({ handleChange, handleBlur, handleSubmit, values }) => (
@@ -147,9 +105,9 @@ const SignUp = ({ navigation }) => {
                   icon="person"
                   placeholder={"First Name"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("firstName")}
-                  onBlur={handleBlur("firstName")}
-                  value={values.firstName}
+                  onChangeText={handleChange("user.firstName")}
+                  onBlur={handleBlur("user.firstName")}
+                  value={values.user.firstName}
                   onClick={onfocus}
                 />
                 <MyTextInput
@@ -157,18 +115,18 @@ const SignUp = ({ navigation }) => {
                   icon="person"
                   placeholder={"Last Name"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("lastName")}
-                  onBlur={handleBlur("lastName")}
-                  value={values.lastName}
+                  onChangeText={handleChange("user.lastName")}
+                  onBlur={handleBlur("user.lastName")}
+                  value={values.user.lastName}
                 />
                 <MyTextInput
                   label="Email"
                   icon="mail"
                   placeholder={"Enter your email"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  value={values.email}
+                  onChangeText={handleChange("user.email")}
+                  onBlur={handleBlur("user.email")}
+                  value={values.user.email}
                   keyboardType="email-address"
                   style={{ marginBottom: 100 }}
                 />
@@ -178,29 +136,29 @@ const SignUp = ({ navigation }) => {
                   icon="lock"
                   placeholder={"* * * * * * * *"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("password")}
-                  onBlur={handleBlur("password")}
-                  value={values.password}
+                  onChangeText={handleChange("user.password")}
+                  onBlur={handleBlur("user.password")}
+                  value={values.user.password}
                   secureTextEntry={hidePassword}
                   isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
                 />
 
-                <MyTextInput
+                {/*                 <MyTextInput
                   label="Confirm Password"
                   icon="lock"
                   placeholder={"* * * * * * * *"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("confirmPassword")}
-                  onBlur={handleBlur("confirmPassword")}
-                  value={values.confirmPassword}
+                  onChangeText={handleChange("user.confirmPassword")}
+                  onBlur={handleBlur("user.confirmPassword")}
+                  value={values.user.confirmPassword}
                   secureTextEntry={hidePassword}
                   isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
                 />
-
+ */}
                 <StyledButton onPress={handleSubmit} marginTop="20">
                   <ButtonText>Sign Up</ButtonText>
                 </StyledButton>
