@@ -4,4 +4,13 @@ export const apiUrl = "https://nodewithestephan.herokuapp.com";
 // tokenkey
 export const tokenKey = "userInfo";
 
-// for Auth requests.
+// userinfo object structure
+
+export const userInfo = {
+  user: {
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  },
+};

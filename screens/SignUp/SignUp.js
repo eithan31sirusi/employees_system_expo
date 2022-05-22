@@ -1,13 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Formik } from "formik";
+import { Formik, useFormik } from "formik";
+import * as Yup from "yup";
+
+import { user } from "../../config/config";
+
+import { validationSchema } from "../../util/validate";
 
 import { login, registerUser } from "../../services/userService";
 
-// icons
-
-import { Octicons, Ionicons } from "@expo/vector-icons";
+import MyTextInput from "../../common/CustomInput/MyTextInput";
 
 // globalstyles
 
@@ -21,15 +24,6 @@ import {
   PageLogo,
   PageLogoContainer,
 } from "../../styles/global/styles.components";
-
-// component styles
-
-import {
-  LeftIcon,
-  StyledTextInput,
-  RightIcon,
-  StyledInputLabel,
-} from "./SignUp.styles";
 
 // button styles
 
@@ -85,7 +79,6 @@ const SignUp = ({ navigation }) => {
           <SubTitle>Personal Details</SubTitle>
           <Formik
             initialValues={{
-              // an object structure the API expects
               user: {
                 firstName: "",
                 lastName: "",
@@ -93,12 +86,20 @@ const SignUp = ({ navigation }) => {
                 password: "",
               },
             }}
+            // validationSchema={validationSchema}
             onSubmit={(values = values.user) => {
-              console.log(values);
+              console.log(values, "im line 84");
               registerUser(values);
             }}
           >
-            {({ handleChange, handleBlur, handleSubmit, values }) => (
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+            }) => (
               <StyledFormArea>
                 <MyTextInput
                   label="First Name"
@@ -107,8 +108,9 @@ const SignUp = ({ navigation }) => {
                   placeholderTextColor={Colors.darkLighit}
                   onChangeText={handleChange("user.firstName")}
                   onBlur={handleBlur("user.firstName")}
-                  value={values.user.firstName}
+                  value={values.firstName}
                   onClick={onfocus}
+                  error={touched.firstName && errors.firstName}
                 />
                 <MyTextInput
                   label="Last Name"
@@ -117,7 +119,8 @@ const SignUp = ({ navigation }) => {
                   placeholderTextColor={Colors.darkLighit}
                   onChangeText={handleChange("user.lastName")}
                   onBlur={handleBlur("user.lastName")}
-                  value={values.user.lastName}
+                  value={values.lastName}
+                  error={touched.lastName && errors.lastName}
                 />
                 <MyTextInput
                   label="Email"
@@ -126,9 +129,10 @@ const SignUp = ({ navigation }) => {
                   placeholderTextColor={Colors.darkLighit}
                   onChangeText={handleChange("user.email")}
                   onBlur={handleBlur("user.email")}
-                  value={values.user.email}
+                  value={values.email}
                   keyboardType="email-address"
                   style={{ marginBottom: 100 }}
+                  error={touched.email && errors.email}
                 />
 
                 <MyTextInput
@@ -138,27 +142,29 @@ const SignUp = ({ navigation }) => {
                   placeholderTextColor={Colors.darkLighit}
                   onChangeText={handleChange("user.password")}
                   onBlur={handleBlur("user.password")}
-                  value={values.user.password}
+                  value={values.password}
                   secureTextEntry={hidePassword}
                   isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
+                  error={touched.password && errors.password}
                 />
 
-                {/*                 <MyTextInput
+                <MyTextInput
                   label="Confirm Password"
                   icon="lock"
                   placeholder={"* * * * * * * *"}
                   placeholderTextColor={Colors.darkLighit}
                   onChangeText={handleChange("user.confirmPassword")}
                   onBlur={handleBlur("user.confirmPassword")}
-                  value={values.user.confirmPassword}
+                  value={values.confirmPassword}
                   secureTextEntry={hidePassword}
                   isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
+                  error={touched.confirmPassword && errors.confirmPassword}
                 />
- */}
+
                 <StyledButton onPress={handleSubmit} marginTop="20">
                   <ButtonText>Sign Up</ButtonText>
                 </StyledButton>
@@ -183,36 +189,6 @@ const SignUp = ({ navigation }) => {
         </InnerContainer>
       </GlobalContainer>
     </KeyboardAvoidingWarper>
-  );
-};
-
-const MyTextInput = ({
-  label,
-  icon,
-  isPassword,
-  hidePassword,
-  setHidePassword,
-  ...props
-}) => {
-  return (
-    <View>
-      <StyledInputLabel style={{ marginBottom: -10 }}>
-        {" "}
-        {label}{" "}
-      </StyledInputLabel>
-      <StyledTextInput {...props} />
-
-      {isPassword && (
-        <LeftIcon>
-          <Ionicons
-            onPress={() => setHidePassword(!hidePassword)}
-            name={hidePassword ? "md-eye-off" : "md-eye"}
-            size={20}
-            color={Colors.dark}
-          />
-        </LeftIcon>
-      )}
-    </View>
   );
 };
 

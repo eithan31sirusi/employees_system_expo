@@ -4,14 +4,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { apiUrl, tokenKey } from "../config/config";
 import jwt_decode from "jwt-decode";
 
+import * as Yup from "yup";
+
 // @desc    Register a new user
 // @route   [POST] /api/users/register
 // @access  Public
-// @payload user: { firstName, lastName, email, image, password }
+// @payload user: { firstName, lastName, email, image, password }s
 
 // function to register user & set token to AsyncStorage
 export const registerUser = async (user) => {
-  console.log("im res");
   try {
     const { data } = await axios.post(
       `https://nodewithestephan.herokuapp.com/api/users/register`,
@@ -19,9 +20,13 @@ export const registerUser = async (user) => {
     );
 
     await AsyncStorage.setItem(tokenKey, JSON.stringify(data));
+    console.log("new user registered!");
     return data;
   } catch (err) {
-    console.log(err);
+    if (err.response) {
+      console.log(err.response.data.message, "something went wrong");
+      return err.response.data.message;
+    }
   }
 };
 
