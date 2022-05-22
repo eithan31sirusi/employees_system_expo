@@ -1,11 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Formik } from "formik";
+import { Formik, useFormik } from "formik";
+import * as Yup from "yup";
 
-// icons
+import { user } from "../../config/config";
 
-import { Octicons, Ionicons } from "@expo/vector-icons";
+import { validationSchema } from "../../util/validate";
+
+import { login, registerUser } from "../../services/userService";
+
+import MyTextInput from "../../common/CustomInput/MyTextInput";
 
 // globalstyles
 
@@ -19,15 +24,6 @@ import {
   PageLogo,
   PageLogoContainer,
 } from "../../styles/global/styles.components";
-
-// component styles
-
-import {
-  LeftIcon,
-  StyledTextInput,
-  RightIcon,
-  StyledInputLabel,
-} from "../SignIn/SignIn.styels";
 
 // button styles
 
@@ -48,56 +44,11 @@ import { SignUpTitleBG } from "./SignUp.styles";
 
 import KeyboardAvoidingWarper from "../../common/KeyboardAvoiding/KeyboardAvoidingWarper";
 
-/* 
-create a user
-
-
-firstName: {
-       type: String,
-       required: true
-   },
-   lastName: {
-       type: String,
-       required: true
-   },
-   email: {
-       type: String,
-       required: true,
-       unique: true
-   },
-   userImage: {
-        type: String,
-        required: true
-   },
-   image: {
-    type: String,
-    required: false
-  },
-   password: {
-       type: String,
-       required: true
-   },
-   isAdmin: {
-       type: Boolean,
-       required: true,
-       default: false
-   },
-   isEditor: {
-       type: Boolean,
-       required: true,
-       default: false
-   }
-},
-{
-    timestamps: true
-}) */
-
 const SignUp = ({ navigation }) => {
   const [hidePassword, setHidePassword] = useState(true);
   const [show, setShow] = useState(false);
-  const [date, setDate] = useState(new Date(200, 0, 1));
+  const [userDate, setUserDate] = useState({});
   // actual date of birth to be sent to the server
-  const [dob, setDob] = useState();
 
   // hiding the label
 
@@ -110,6 +61,8 @@ const SignUp = ({ navigation }) => {
   const onfocus = () => {
     setHideLabel(false);
   };
+
+  login();
 
   return (
     <KeyboardAvoidingWarper>
@@ -126,51 +79,60 @@ const SignUp = ({ navigation }) => {
           <SubTitle>Personal Details</SubTitle>
           <Formik
             initialValues={{
-              firstName: "",
-              lastName: "",
-              email: "",
-              password: "",
-              confirmPassword: "",
+              user: {
+                firstName: "",
+                lastName: "",
+                email: "",
+                password: "",
+              },
             }}
-            onSubmit={(values) => {
-              console.log(values);
-              setTimeout(() => {
-                navigation.navigate("SignIn");
-              }, 2000);
-              navigation.navigate("Welcome");
+            // validationSchema={validationSchema}
+            onSubmit={(values = values.user) => {
+              console.log(values, "im line 84");
+              registerUser(values);
             }}
           >
-            {({ handleChange, handleBlur, handleSubmit, values }) => (
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+            }) => (
               <StyledFormArea>
                 <MyTextInput
                   label="First Name"
                   icon="person"
                   placeholder={"First Name"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("firstName")}
-                  onBlur={handleBlur("firstName")}
+                  onChangeText={handleChange("user.firstName")}
+                  onBlur={handleBlur("user.firstName")}
                   value={values.firstName}
                   onClick={onfocus}
+                  error={touched.firstName && errors.firstName}
                 />
                 <MyTextInput
                   label="Last Name"
                   icon="person"
                   placeholder={"Last Name"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("lastName")}
-                  onBlur={handleBlur("lastName")}
+                  onChangeText={handleChange("user.lastName")}
+                  onBlur={handleBlur("user.lastName")}
                   value={values.lastName}
+                  error={touched.lastName && errors.lastName}
                 />
                 <MyTextInput
                   label="Email"
                   icon="mail"
                   placeholder={"Enter your email"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("email")}
-                  onBlur={handleBlur("email")}
+                  onChangeText={handleChange("user.email")}
+                  onBlur={handleBlur("user.email")}
                   value={values.email}
                   keyboardType="email-address"
                   style={{ marginBottom: 100 }}
+                  error={touched.email && errors.email}
                 />
 
                 <MyTextInput
@@ -178,13 +140,14 @@ const SignUp = ({ navigation }) => {
                   icon="lock"
                   placeholder={"* * * * * * * *"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("password")}
-                  onBlur={handleBlur("password")}
+                  onChangeText={handleChange("user.password")}
+                  onBlur={handleBlur("user.password")}
                   value={values.password}
                   secureTextEntry={hidePassword}
                   isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
+                  error={touched.password && errors.password}
                 />
 
                 <MyTextInput
@@ -192,13 +155,14 @@ const SignUp = ({ navigation }) => {
                   icon="lock"
                   placeholder={"* * * * * * * *"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("confirmPassword")}
-                  onBlur={handleBlur("confirmPassword")}
+                  onChangeText={handleChange("user.confirmPassword")}
+                  onBlur={handleBlur("user.confirmPassword")}
                   value={values.confirmPassword}
                   secureTextEntry={hidePassword}
                   isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
+                  error={touched.confirmPassword && errors.confirmPassword}
                 />
 
                 <StyledButton onPress={handleSubmit} marginTop="20">
@@ -225,36 +189,6 @@ const SignUp = ({ navigation }) => {
         </InnerContainer>
       </GlobalContainer>
     </KeyboardAvoidingWarper>
-  );
-};
-
-const MyTextInput = ({
-  label,
-  icon,
-  isPassword,
-  hidePassword,
-  setHidePassword,
-  ...props
-}) => {
-  return (
-    <View>
-      <StyledInputLabel style={{ marginBottom: -10 }}>
-        {" "}
-        {label}{" "}
-      </StyledInputLabel>
-      <StyledTextInput {...props} />
-
-      {isPassword && (
-        <LeftIcon>
-          <Ionicons
-            onPress={() => setHidePassword(!hidePassword)}
-            name={hidePassword ? "md-eye-off" : "md-eye"}
-            size={20}
-            color={Colors.dark}
-          />
-        </LeftIcon>
-      )}
-    </View>
   );
 };
 

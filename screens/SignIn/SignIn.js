@@ -3,9 +3,7 @@ import { View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Formik } from "formik";
 
-// icons
-
-import { Ionicons } from "@expo/vector-icons";
+import MyTextInput from "../../common/CustomInput/MyTextInput";
 
 // globalstyles
 
@@ -21,15 +19,6 @@ import {
   Colors,
 } from "../../styles/global/styles.components";
 
-// component styles
-
-import {
-  LeftIcon,
-  StyledTextInput,
-  RightIcon,
-  StyledInputLabel,
-} from "./SignIn.styels";
-
 // button styles
 
 import {
@@ -44,36 +33,6 @@ import {
 // keyboard avoid
 
 import KeyboardAvoidingWarper from "../../common/KeyboardAvoiding/KeyboardAvoidingWarper";
-
-/*  
-// create a employee schema 
-
-firstName: {
-       type: String,
-       required: true
-   },
-   lastName: {
-       type: String,
-       required: true
-   },
-   phone: {
-       type: String,
-       required: true
-    },
-    adress: {
-        type: String,
-        required: true
-    },
-    roll: {
-        type: String,
-        required: true
-    },
-    image: {
-        type: String,
-        required: false
-      }, */
-
-// API call
 
 import axios from "axios";
 
@@ -169,31 +128,6 @@ const SignIn = ({ navigation }) => {
         </InnerContainer>
       </GlobalContainer>
     </KeyboardAvoidingWarper>
-  );
-};
-
-const MyTextInput = ({
-  label,
-  icon,
-  isPassword,
-  hidePassword,
-  setHidePassword,
-  ...props
-}) => {
-  return (
-    <View>
-      <StyledInputLabel> {label} </StyledInputLabel>
-      <StyledTextInput {...props}></StyledTextInput>
-      {isPassword && (
-        <LeftIcon onPress={() => setHidePassword(!hidePassword)}>
-          <Ionicons
-            name={hidePassword ? "md-eye-off" : "md-eye"}
-            size={20}
-            color={Colors.dark}
-          />
-        </LeftIcon>
-      )}
-    </View>
   );
 };
 
