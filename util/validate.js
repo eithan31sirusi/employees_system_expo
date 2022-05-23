@@ -72,53 +72,27 @@ export const formValidationHandler = (inp, value) => {
   }
 };
 
-const errorsMessages = {
-  required: "This field is required",
-  firstNameMsg: {
-    minName: "First name must be at least ${min} characters",
-    maxName: "First name  must be at most ${max} characters",
-  },
-  lastNameMsg: {
-    minName: "Last name  must be at least ${min} characters",
-    maxName: "Last name  must be at most ${max} characters",
-  },
-  emailMsg: {
-    minEmail: "Email must be at least ${min} characters",
-    maxEmail: "Email  must be at most ${max} characters",
-  },
-  passwordMsg: {
-    minPassword: "Password must be at least ${min} characters",
-    maxPassword: "Password  must be at most ${max} characters",
-    invalidPassword: "Password must contain letters, numbers and @ only",
-  },
-};
-
-const { firstNameMsg, lastNameMsg, emailMsg, confirmPasswordMsg } =
-  errorsMessages;
-
 export const validationSchema = Yup.object({
   firstName: Yup.string()
     .trim()
-    .min(3, firstNameMsg.minName)
-    .max(20, firstNameMsg.maxName)
-    .required(errorsMessages.required),
+    .min(3, "First name must be at least 3 characters")
+    .max(20, "First name must be at most 20 characters")
+    .required("First name is required"),
 
   lastName: Yup.string()
     .trim()
-    .min(3, lastNameMsg.minName)
-    .max(20, lastNameMsg.maxName)
-    .required(errorsMessages.required),
+    .min(3, "Last name must be at least 3 characters")
+    .max(20, "Last name must be at most 20 characters")
+    .required("Last name is required"),
 
-  email: Yup.string()
-    .email("Email is invalid")
-    .required(errorsMessages.required),
+  email: Yup.string().email("Email is invalid").required("Email is required"),
   password: Yup.string()
     .trim()
-    .min(3, firstNameMsg.minName)
-    .max(20, firstNameMsg.maxName)
-    .required(errorsMessages.required),
+    .min(3, "Password must be at least 3 characters")
+    .max(20, "Password must be at most 20 characters")
+    .required("Password is required"),
 
-  confirmPassword: Yup.string()
+  /*   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords do not match")
-    .required(errorsMessages.required),
+    .required(errorsMessages.required), */
 });

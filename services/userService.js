@@ -16,7 +16,7 @@ export const registerUser = async (user) => {
   try {
     const { data } = await axios.post(
       `https://nodewithestephan.herokuapp.com/api/users/register`,
-      user
+      { user }
     );
 
     await AsyncStorage.setItem(tokenKey, JSON.stringify(data));

@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Formik, useFormik } from "formik";
-import * as Yup from "yup";
+
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 import { user } from "../../config/config";
 
@@ -46,13 +48,53 @@ import KeyboardAvoidingWarper from "../../common/KeyboardAvoiding/KeyboardAvoidi
 
 const SignUp = ({ navigation }) => {
   const [hidePassword, setHidePassword] = useState(true);
-  const [show, setShow] = useState(false);
-  const [userDate, setUserDate] = useState({});
-  // actual date of birth to be sent to the server
 
   // hiding the label
 
   const [hideLabel, setHideLabel] = useState(true);
+
+  const validationSchema = yup
+    .object({
+      firstName: yup
+        .string()
+        .required("First name is required")
+        .min(2, "Name must be at least 2 characters")
+        .max(20, "Name must be less than 20 characters"),
+      lastName: yup
+        .string()
+        .required("Last name is required")
+        .min(2, "Name must be at least 2 characters")
+        .max(20, "Name must be less than 20 characters"),
+      email: yup.string().email().required("Email is required"),
+      password: yup
+        .string()
+        .required("Password is required")
+        .matches(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+          "Must Contain 8 Characters, One Uppercase, One Lowercase, and One Number"
+        )
+        .max(20, "Password must be less than 20 characters"),
+      confirmPassword: yup
+        .string()
+        .oneOf([yup.ref("password"), null], "Passwords must match")
+        .required("Password is required"),
+    })
+    .required();
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+    },
+    resolver: yupResolver(validationSchema),
+  });
+  const onSubmit = (data) => console.log(data);
 
   // refs
 
@@ -77,115 +119,131 @@ const SignUp = ({ navigation }) => {
 
         <InnerContainer>
           <SubTitle>Personal Details</SubTitle>
-          <Formik
-            initialValues={{
-              user: {
-                firstName: "",
-                lastName: "",
-                email: "",
-                password: "",
-              },
-            }}
-            // validationSchema={validationSchema}
-            onSubmit={(values = values.user) => {
-              console.log(values, "im line 84");
-              registerUser(values);
-            }}
-          >
-            {({
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              values,
-              errors,
-              touched,
-            }) => (
-              <StyledFormArea>
+          <StyledFormArea>
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
                 <MyTextInput
-                  label="First Name"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
                   icon="person"
+                  label="First Name"
                   placeholder={"First Name"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("user.firstName")}
-                  onBlur={handleBlur("user.firstName")}
-                  value={values.firstName}
-                  onClick={onfocus}
-                  error={touched.firstName && errors.firstName}
+                  errors={errors.firstName?.message}
                 />
+              )}
+              name="firstName"
+            />
+
+            <Controller
+              control={control}
+              rules={{
+                maxLength: 100,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
                 <MyTextInput
-                  label="Last Name"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
                   icon="person"
+                  label="Last Name"
                   placeholder={"Last Name"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("user.lastName")}
-                  onBlur={handleBlur("user.lastName")}
-                  value={values.lastName}
-                  error={touched.lastName && errors.lastName}
+                  errors={errors.lastName?.message}
                 />
+              )}
+              name="lastName"
+            />
+            <Controller
+              control={control}
+              rules={{
+                maxLength: 100,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
                 <MyTextInput
-                  label="Email"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
                   icon="mail"
+                  label="Email"
                   placeholder={"Enter your email"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("user.email")}
-                  onBlur={handleBlur("user.email")}
-                  value={values.email}
-                  keyboardType="email-address"
-                  style={{ marginBottom: 100 }}
-                  error={touched.email && errors.email}
+                  errors={errors.email?.message}
                 />
-
+              )}
+              name="email"
+            />
+            <Controller
+              control={control}
+              rules={{
+                maxLength: 100,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
                 <MyTextInput
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  icon="lock"
                   label="Password"
-                  icon="lock"
                   placeholder={"* * * * * * * *"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("user.password")}
-                  onBlur={handleBlur("user.password")}
-                  value={values.password}
                   secureTextEntry={hidePassword}
-                  isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
-                  error={touched.password && errors.password}
+                  isPassword={true}
+                  errors={errors.password?.message}
                 />
-
+              )}
+              name="password"
+            />
+            <Controller
+              control={control}
+              rules={{
+                maxLength: 100,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
                 <MyTextInput
-                  label="Confirm Password"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
                   icon="lock"
-                  placeholder={"* * * * * * * *"}
+                  label="Confirm Password"
+                  placeholder={"Last Name"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("user.confirmPassword")}
-                  onBlur={handleBlur("user.confirmPassword")}
-                  value={values.confirmPassword}
                   secureTextEntry={hidePassword}
                   isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
-                  error={touched.confirmPassword && errors.confirmPassword}
+                  errors={errors.confirmPassword?.message}
                 />
+              )}
+              name="confirmPassword"
+            />
 
-                <StyledButton onPress={handleSubmit} marginTop="20">
-                  <ButtonText>Sign Up</ButtonText>
-                </StyledButton>
-                <ExtraView style={{ marginTop: 40 }}>
-                  <TextLink
-                    onPress={() => {
-                      navigation.navigate("SignIn");
-                    }}
-                  >
-                    <TextLinkContent>Sign In</TextLinkContent>
-                  </TextLink>
-                  <ExtraText>Have an account ? </ExtraText>
-                </ExtraView>
-                <ExtraView style={{ marginTop: 40 }}>
-                  <ExtraText style={{ borderBottomWidth: 1, fontSize: 14 }}>
-                    Our Terms Of Use An Privacy Policy
-                  </ExtraText>
-                </ExtraView>
-              </StyledFormArea>
-            )}
-          </Formik>
+            <StyledButton onPress={handleSubmit(onSubmit)} marginTop="20">
+              <ButtonText>Sign Up</ButtonText>
+            </StyledButton>
+            <ExtraView style={{ marginTop: 40 }}>
+              <TextLink
+                onPress={() => {
+                  navigation.navigate("SignIn");
+                }}
+              >
+                <TextLinkContent>Sign In</TextLinkContent>
+              </TextLink>
+              <ExtraText>Have an account? </ExtraText>
+            </ExtraView>
+            <ExtraView style={{ marginTop: 40 }}>
+              <ExtraText style={{ borderBottomWidth: 1, fontSize: 14 }}>
+                Our Terms Of Use An Privacy Policy
+              </ExtraText>
+            </ExtraView>
+          </StyledFormArea>
         </InnerContainer>
       </GlobalContainer>
     </KeyboardAvoidingWarper>

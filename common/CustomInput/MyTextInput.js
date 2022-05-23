@@ -1,11 +1,12 @@
-import { View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text } from "react-native";
 
 import {
   StyledInputLabel,
   StyledTextInput,
   LeftIcon,
 } from "./myTextInput.styles";
+
+import { Ionicons } from "@expo/vector-icons";
 
 import { Colors } from "../../styles/global/styles.components";
 
@@ -15,7 +16,7 @@ const MyTextInput = ({
   isPassword,
   hidePassword,
   setHidePassword,
-  error,
+  errors,
   ...props
 }) => {
   return (
@@ -38,11 +39,7 @@ const MyTextInput = ({
           </LeftIcon>
         )}
       </View>
-      <View>
-        {error && (
-          <StyledInputLabel style={{ color: "red" }}>{error}</StyledInputLabel>
-        )}
-      </View>
+      <Text style={{ color: "red" }}>{errors}</Text>
     </>
   );
 };
