@@ -1,7 +1,13 @@
-import React, { useState } from "react";
-import { View } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
-import { Formik } from "formik";
+
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+import { loginValidationSchema } from "../../util/validate";
+
+import { login } from "../../services/userService";
 
 import MyTextInput from "../../common/CustomInput/MyTextInput";
 
@@ -33,11 +39,45 @@ import {
 // keyboard avoid
 
 import KeyboardAvoidingWarper from "../../common/KeyboardAvoiding/KeyboardAvoidingWarper";
-
-import axios from "axios";
+import AsyncStorageLib from "@react-native-async-storage/async-storage";
 
 const SignIn = ({ navigation }) => {
   const [hidePassword, setHidePassword] = useState(true);
+  // hiding the label
+  const [hideLabel, setHideLabel] = useState(true);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    resolver: yupResolver(loginValidationSchema),
+  });
+  const onSubmit = (data) => {
+    console.log(data, "data");
+    login(
+      data.email,
+      data.password,
+      () => navigation.navigate("Employees"),
+      // checks the AsyncStorage for the lang item and sets the language
+      (errorMessage) => {
+        const lan = AsyncStorage.getItem("lang");
+      }
+    );
+  };
+
+  // refs
+
+  const renderLabel = useRef(false);
+
+  const onfocus = () => {
+    setHideLabel(false);
+  };
+
   return (
     <KeyboardAvoidingWarper>
       <GlobalContainer topPart={true}>
@@ -48,83 +88,73 @@ const SignIn = ({ navigation }) => {
             <PageLogo source={require("../../assets/images/sign-in-img.png")} />
           </PageLogoContainer>
         </PageTitleBG>
+
         <InnerContainer>
-          <SubTitle>Account SignIn</SubTitle>
-          <Formik
-            initialValues={{ email: "", password: "" }}
-            onSubmit={(values) => {
-              console.log(values);
-              setTimeout(() => {
-                navigation.navigate("Employees");
-              }, 100);
-              navigation.navigate("Welcome");
-            }}
-          >
-            {({ handleChange, handleBlur, handleSubmit, values }) => (
-              <StyledFormArea>
+          <SubTitle>Personal Details</SubTitle>
+          <StyledFormArea>
+            <Controller
+              control={control}
+              rules={{
+                maxLength: 100,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
                 <MyTextInput
-                  label={"Email"}
-                  icon={"mail"}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  icon="mail"
+                  label="Email"
                   placeholder={"Enter your email"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  value={values.email}
+                  errors={errors.email?.message}
                   keyboardType="email-address"
                 />
+              )}
+              name="email"
+            />
+            <Controller
+              control={control}
+              rules={{
+                maxLength: 100,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
                 <MyTextInput
-                  label={"Password"}
-                  icon={"lock"}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  icon="lock"
+                  label="Password"
                   placeholder={"* * * * * * * *"}
                   placeholderTextColor={Colors.darkLighit}
-                  onChangeText={handleChange("password")}
-                  onBlur={handleBlur("password")}
-                  value={values.password}
                   secureTextEntry={hidePassword}
-                  isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
+                  isPassword={true}
+                  errors={errors.password?.message}
                 />
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignContent: "flex-end",
-                    justifyContent: "space-between",
-                    alignItems: "flex-end",
-                    marginBottom: 50,
-                  }}
-                >
-                  <StyledButton onPress={handleSubmit}>
-                    <ButtonText>SignIn</ButtonText>
-                  </StyledButton>
-                  <TextLinkContent
-                    style={{
-                      borderBottomWidth: 1,
-                      borderColor: Colors.brand,
-                      marginBottom: 25,
-                    }}
-                  >
-                    Forgot password?
-                  </TextLinkContent>
-                </View>
-                <ExtraView>
-                  <TextLink
-                    onPress={() => {
-                      navigation.navigate("SignUp");
-                    }}
-                  >
-                    <TextLinkContent>Signup</TextLinkContent>
-                  </TextLink>
-                  <ExtraText>Don't have an account already? </ExtraText>
-                </ExtraView>
-                <ExtraView style={{ marginTop: 40 }}>
-                  <ExtraText style={{ borderBottomWidth: 1, fontSize: 14 }}>
-                    Our Terms Of Use An Privacy Policy
-                  </ExtraText>
-                </ExtraView>
-              </StyledFormArea>
-            )}
-          </Formik>
+              )}
+              name="password"
+            />
+
+            <StyledButton onPress={handleSubmit(onSubmit)} marginTop="20">
+              <ButtonText>Sign In</ButtonText>
+            </StyledButton>
+            <ExtraView>
+              <TextLink
+                onPress={() => {
+                  navigation.navigate("SignUp");
+                }}
+              >
+                <TextLinkContent>Signup</TextLinkContent>
+              </TextLink>
+              <ExtraText>Don't have an account already? </ExtraText>
+            </ExtraView>
+            <ExtraView style={{ marginTop: 40 }}>
+              <ExtraText style={{ borderBottomWidth: 1, fontSize: 14 }}>
+                Our Terms Of Use An Privacy Policy
+              </ExtraText>
+            </ExtraView>
+          </StyledFormArea>
         </InnerContainer>
       </GlobalContainer>
     </KeyboardAvoidingWarper>

@@ -1,16 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+
 import { StatusBar } from "expo-status-bar";
 
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 
-import { user } from "../../config/config";
+import { registerValidationSchema } from "../../util/validate";
 
-import { validationSchema } from "../../util/validate";
-
-import { login, registerUser } from "../../services/userService";
+import { registerUser } from "../../services/userService";
 
 import MyTextInput from "../../common/CustomInput/MyTextInput";
 
@@ -32,8 +29,6 @@ import {
 import {
   StyledButton,
   ButtonText,
-  MsgBox,
-  Line,
   ExtraView,
   ExtraText,
   TextLink,
@@ -53,34 +48,6 @@ const SignUp = ({ navigation }) => {
 
   const [hideLabel, setHideLabel] = useState(true);
 
-  const validationSchema = yup
-    .object({
-      firstName: yup
-        .string()
-        .required("First name is required")
-        .min(2, "Name must be at least 2 characters")
-        .max(20, "Name must be less than 20 characters"),
-      lastName: yup
-        .string()
-        .required("Last name is required")
-        .min(2, "Name must be at least 2 characters")
-        .max(20, "Name must be less than 20 characters"),
-      email: yup.string().email().required("Email is required"),
-      password: yup
-        .string()
-        .required("Password is required")
-        .matches(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-          "Must Contain 8 Characters, One Uppercase, One Lowercase, and One Number"
-        )
-        .max(20, "Password must be less than 20 characters"),
-      confirmPassword: yup
-        .string()
-        .oneOf([yup.ref("password"), null], "Passwords must match")
-        .required("Password is required"),
-    })
-    .required();
-
   const {
     control,
     handleSubmit,
@@ -92,9 +59,12 @@ const SignUp = ({ navigation }) => {
       email: "",
       password: "",
     },
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(registerValidationSchema),
   });
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = (data) => {
+    console.log(data);
+    registerUser(data);
+  };
 
   // refs
 
@@ -103,8 +73,6 @@ const SignUp = ({ navigation }) => {
   const onfocus = () => {
     setHideLabel(false);
   };
-
-  login();
 
   return (
     <KeyboardAvoidingWarper>
@@ -174,6 +142,7 @@ const SignUp = ({ navigation }) => {
                   placeholder={"Enter your email"}
                   placeholderTextColor={Colors.darkLighit}
                   errors={errors.email?.message}
+                  keyboardType="email-address"
                 />
               )}
               name="email"

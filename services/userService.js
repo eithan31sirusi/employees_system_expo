@@ -1,7 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-import { apiUrl, tokenKey } from "../config/config";
+import { apiUrl, tokenKey, headers } from "../config/config";
 import jwt_decode from "jwt-decode";
 
 import * as Yup from "yup";
@@ -14,13 +13,10 @@ import * as Yup from "yup";
 // function to register user & set token to AsyncStorage
 export const registerUser = async (user) => {
   try {
-    const { data } = await axios.post(
-      `https://nodewithestephan.herokuapp.com/api/users/register`,
-      { user }
-    );
+    const { data } = await axios.post(`${apiUrl}/api/users/register`, { user });
 
     await AsyncStorage.setItem(tokenKey, JSON.stringify(data));
-    console.log("new user registered!");
+    console.log("new user registered!", ` token key: ${tokenKey}`);
     return data;
   } catch (err) {
     if (err.response) {
@@ -30,38 +26,73 @@ export const registerUser = async (user) => {
   }
 };
 
-export async function login() {
+// @desc    Login - Auth user & get token.
+// @route   [POST] /api/users/login
+// @access  Public
+// @payload email, password
+export async function loginUser(email, password) {
   try {
-    const user = {
-      email: "evyatar@gmail.com",
-      password: "Aa123456",
-    };
+    // send email & password and get the response (user data + token).
 
-    const { data } = await axios.post(
-      "https://nodewithestephan.herokuapp.com/api/users/login",
-      user,
-      headers
-    );
+    console.log(email, password, `${apiUrl}/api/users/login`);
+    const { data, status } = await axios.post(`${apiUrl}/api/users/login`, {
+      email,
+      password,
+    });
+    console.log(data, status);
 
+    // set the token in local storage (connect the user)
+    await AsyncStorage.setItem(tokenKey, JSON.stringify(data));
+    console.log(data, "axios data");
+    // return user data outside
     return data;
   } catch (err) {
+    console.log(err, "something went wrong");
     if (err.response) {
       return err.response.data.message;
     }
   }
 }
 
+export async function login(email, password, onCompleted, onError) {
+  const data = JSON.stringify({
+    email,
+    password,
+  });
+
+  const config = {
+    method: "post",
+    url: "https://nodewithestephan.herokuapp.com/api/users/login",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: data,
+  };
+
+  try {
+    const request = await axios(config);
+    if (request.status !== 200) throw Error(request.statusText);
+    await AsyncStorage.setItem(tokenKey, JSON.stringify(data));
+    onCompleted && onCompleted();
+  } catch (err) {
+    console.log(err, "something went wrong");
+    if (err.response) {
+      onError && onError(err.response.data.message);
+    }
+  }
+}
+
 // Logout user.
-export function logout() {
+export async function logout() {
   // remove token from Localstorage
-  localStorage.removeItem(tokenKey);
+  await AsyncStorage.removeItem(tokenKey);
 }
 
 // check if token exist (in localStorage).
-export function getCurrentUser() {
+export async function getCurrentUser() {
   try {
     // try to take the token from localStorage
-    const jwt = localStorage.getItem(tokenKey);
+    const jwt = await AsyncStorage.getItem(tokenKey);
 
     // decode and return him
     return jwtDecode(JSON.parse(jwt).token);
@@ -72,12 +103,14 @@ export function getCurrentUser() {
 }
 
 // extract user data from localStorage.
-export function userData() {
+export async function userData() {
   try {
     // try to take the token from localStorage
-    const jwt = JSON.parse(localStorage.getItem(tokenKey)).token;
+    const dataStorage = await AsyncStorage.getItem(tokenKey);
 
-    const data = jwtDecode(jwt).userData;
+    const jwt = JSON.parse(dataStorage).token;
+
+    const data = jwt_decode(jwt).userData;
 
     const user = {
       _id: data._id,
@@ -89,35 +122,10 @@ export function userData() {
       isEditor: data.isEditor,
     };
 
-    // return him
     return user;
   } catch (ex) {
     // if not exist return null
     return null;
-  }
-}
-
-// @desc    Login - Auth user & get token.
-// @route   [POST] /api/users/login
-// @access  Public
-// @payload email, password
-export async function loginUser(email, password) {
-  try {
-    // send email & password and get the response (user data + token).
-    const { data } = await axios.post(`${apiUrl}/api/users/login`, {
-      email,
-      password,
-    });
-
-    // set the token in local storage (connect the user)
-    localStorage.setItem(tokenKey, JSON.stringify(data));
-
-    // return user data outside
-    return data;
-  } catch (err) {
-    if (err.response) {
-      return err.response.data.message;
-    }
   }
 }
 
@@ -128,10 +136,11 @@ export async function loginUser(email, password) {
 export async function getUserProfile(userId) {
   try {
     // send id of the current user, and get all user in = data variable.
-    const { data } = await axios.post(`${apiUrl}/api/users/profile`, userId, {
+    const data = await axios.get(`${apiUrl}/api/users/profile/${userId}`, {
       headers,
     });
 
+    console.log(data, "data function");
     // return all data outside
     return data;
   } catch (err) {
