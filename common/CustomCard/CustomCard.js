@@ -24,20 +24,27 @@ import {
 
 import { SvgContainer } from "../../styles/global/styles.components";
 
-const CustomCard = () => {
+const CustomCard = ({
+  firstName,
+  lastName,
+  phone,
+  address,
+  roll,
+  startingDate,
+}) => {
   return (
     <CustomCardWrapper>
       <EmployeeImage source={require("../../assets/images/Avatar.png")} />
       <EmployeeDetails>
-        <EmployeeName> Employee Name </EmployeeName>
+        <EmployeeName> {`${firstName} ${lastName}`} </EmployeeName>
         <DetailContainer>
           <SvgContainer>
             <BagICO />
           </SvgContainer>
 
           <Detail>
-            <DetailText> HR </DetailText>
-            <DetaiStartingDate>Starting Date: 2 Feb 2020</DetaiStartingDate>
+            <DetailText> {roll} </DetailText>
+            <DetaiStartingDate>{startingDate}</DetaiStartingDate>
           </Detail>
         </DetailContainer>
         <DetailContainer>
@@ -46,7 +53,7 @@ const CustomCard = () => {
           </SvgContainer>
 
           <Detail>
-            <DetailText>050 80380336</DetailText>
+            <DetailText>{phone}</DetailText>
           </Detail>
         </DetailContainer>
         <DetailContainer>
@@ -55,7 +62,7 @@ const CustomCard = () => {
           </SvgContainer>
 
           <Detail>
-            <DetailText> Rothschild 22, Tel Aviv </DetailText>
+            <DetailText> {address} </DetailText>
           </Detail>
         </DetailContainer>
       </EmployeeDetails>

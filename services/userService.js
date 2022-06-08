@@ -11,12 +11,13 @@ import * as Yup from "yup";
 // @payload user: { firstName, lastName, email, image, password }s
 
 // function to register user & set token to AsyncStorage
-export const registerUser = async (user) => {
+export const registerUser = async (user, onCompleted, onError) => {
   try {
     const { data } = await axios.post(`${apiUrl}/api/users/register`, { user });
 
     await AsyncStorage.setItem(tokenKey, JSON.stringify(data));
     console.log("new user registered!", ` token key: ${tokenKey}`);
+    onCompleted && onCompleted();
     return data;
   } catch (err) {
     if (err.response) {
@@ -72,8 +73,9 @@ export async function login(email, password, onCompleted, onError) {
   try {
     const request = await axios(config);
     if (request.status !== 200) throw Error(request.statusText);
-    await AsyncStorage.setItem(tokenKey, JSON.stringify(data));
+    await AsyncStorage.setItem(tokenKey, JSON.stringify(request.data));
     onCompleted && onCompleted();
+    console.log(request.data, "axios data");
   } catch (err) {
     console.log(err, "something went wrong");
     if (err.response) {

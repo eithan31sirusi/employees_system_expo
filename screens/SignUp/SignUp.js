@@ -63,7 +63,7 @@ const SignUp = ({ navigation }) => {
   });
   const onSubmit = (data) => {
     console.log(data);
-    registerUser(data);
+    registerUser(data, () => navigation.navigate("Employees"));
   };
 
   // refs

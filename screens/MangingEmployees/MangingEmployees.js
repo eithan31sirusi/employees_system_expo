@@ -1,7 +1,11 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 
+import asxios from "axios";
+
 import CustomCard from "../../common/CustomCard/CustomCard";
+
+import { getAllEmployees } from "../../services/employeeService";
 
 import {
   GlobalContainer,
@@ -16,6 +20,13 @@ import AddICO from "../../assets/SVG/addico.svg";
 import ArrowICO from "../../assets/SVG/arrow.svg";
 
 const MangingEmployees = ({ navigation }) => {
+  const [employees, setEmployees] = useState([]);
+
+  useEffect(() => {
+    getAllEmployees().then((res) => setEmployees(res));
+    console.log(employees);
+  }, []);
+
   return (
     <>
       <GlobalContainer>
@@ -39,11 +50,20 @@ const MangingEmployees = ({ navigation }) => {
               <AddICO />
             </SvgContainer>
           </TouchableOpacity>
-          <CustomCard />
+          {employees.map((employee) => (
+            <CustomCard
+              key={employee._id}
+              firstName={employee.firstName}
+              lastName={employee.lastName}
+              phone={employee.phone}
+              address={employee.adress}
+              roll={employee.roll}
+              startingDate={employee.createdAt}
+            />
+          ))}
         </PageContainer>
       </GlobalContainer>
     </>
-    
   );
 };
 

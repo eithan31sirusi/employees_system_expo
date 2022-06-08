@@ -101,14 +101,49 @@ export const registerValidationSchema = yup
   })
   .required();
 
-export const loginValidationSchema = yup.object({
-  email: yup.string().email().required("Email is required"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-      "Must Contain 8 Characters, One Uppercase, One Lowercase, and One Number"
-    )
-    .max(20, "Password must be less than 20 characters"),
-});
+export const loginValidationSchema = yup
+  .object({
+    email: yup.string().email().required("Email is required"),
+    password: yup
+      .string()
+      .required("Password is required")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+        "Must Contain 8 Characters, One Uppercase, One Lowercase, and One Number"
+      )
+      .max(20, "Password must be less than 20 characters"),
+  })
+  .required();
+
+// validate for adding a new employee
+
+export const registerEmployeeSchema = yup
+  .object({
+    firstName: yup
+      .string()
+      .required("First name is required")
+      .min(2, "Name must be at least 2 characters")
+      .max(20, "Name must be less than 20 characters"),
+    lastName: yup
+      .string()
+      .required("Last name is required")
+      .min(2, "Name must be at least 2 characters")
+      .max(20, "Name must be less than 20 characters"),
+
+    adress: yup
+      .string()
+      .required("Adress is required")
+      .min(5, "Adress must be at least 5 characters")
+      .max(50, "Adress must be less than 50 characters"),
+    phone: yup
+      .string()
+      .required("Phone is required")
+      .min(9, "Phone must be at least 9 characters")
+      .max(10, "Phone must be less than 10 characters"),
+    roll: yup
+      .string()
+      .required("Roll is required")
+      .min(1, "Roll must be at least 1 characters")
+      .max(20, "Roll must be less than 20 characters"),
+  })
+  .required();

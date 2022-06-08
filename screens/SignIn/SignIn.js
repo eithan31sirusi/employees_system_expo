@@ -62,11 +62,11 @@ const SignIn = ({ navigation }) => {
     login(
       data.email,
       data.password,
-      () => navigation.navigate("Employees"),
+      () => navigation.navigate("Employees")
       // checks the AsyncStorage for the lang item and sets the language
-      (errorMessage) => {
+      /*   (errorMessage) => {
         const lan = AsyncStorage.getItem("lang");
-      }
+      } */
     );
   };
 
